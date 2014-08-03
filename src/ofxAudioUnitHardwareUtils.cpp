@@ -153,3 +153,14 @@ std::string AudioDeviceManufacturer(AudioDeviceID deviceID)
 	
 	return StringForPropertyOnDevice(deviceManuProp, deviceID);
 }
+
+std::string AudioDeviceUID(AudioDeviceID deviceID)
+{
+    AudioObjectPropertyAddress deviceManuProp = {
+        .mSelector = kAudioDevicePropertyDeviceUID,
+        .mScope    = kAudioObjectPropertyScopeGlobal,
+        .mElement  = kAudioObjectPropertyElementMaster
+	};
+	
+	return StringForPropertyOnDevice(deviceManuProp, deviceID);
+}

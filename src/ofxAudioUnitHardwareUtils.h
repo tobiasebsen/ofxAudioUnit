@@ -14,3 +14,4 @@ AudioDeviceID DefaultAudioOutputDevice();
 
 std::string AudioDeviceName(AudioDeviceID deviceID);
 std::string AudioDeviceManufacturer(AudioDeviceID deviceID);
+std::string AudioDeviceUID(AudioDeviceID deviceID);
