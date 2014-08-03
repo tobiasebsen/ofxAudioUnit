@@ -76,6 +76,82 @@ bool ofxAudioUnitOutput::setDevice(const string &deviceName)
 }
 
 // ----------------------------------------------------------
+AudioDeviceID ofxAudioUnitOutput::getDevice()
+// ----------------------------------------------------------
+{
+    AudioDeviceID deviceID = 0;
+    UInt32 deviceIDSize = sizeof(deviceID);
+    OFXAU_PRINT(AudioUnitGetProperty(*_unit,
+                         kAudioOutputUnitProperty_CurrentDevice,
+                         kAudioUnitScope_Global,
+                         0,
+                         &deviceID,
+                         &deviceIDSize),
+                "getting output unit's device ID");
+    return deviceID;
+}
+
+// ----------------------------------------------------------
+std::vector<UInt32> ofxAudioUnitOutput::getChannelMap()
+// ----------------------------------------------------------
+{
+    UInt32 dataSize;
+    Boolean writable;
+    OFXAU_PRINT(AudioUnitGetPropertyInfo(*_unit,
+                             kAudioOutputUnitProperty_ChannelMap,
+                             kAudioUnitScope_Output,
+                             0,
+                             &dataSize,
+                             &writable),
+                "getting output unit's channel map");
+    
+    UInt32 numChannels = dataSize / sizeof(UInt32);
+    std::vector<UInt32> channelMap(numChannels);
+    
+    AudioUnitGetProperty(*_unit,
+                         kAudioOutputUnitProperty_ChannelMap,
+                         kAudioUnitScope_Output,
+                         0,
+                         channelMap.data(),
+                         &dataSize);
+        
+    return channelMap;
+}
+
+// ----------------------------------------------------------
+bool ofxAudioUnitOutput::setChannelMap(std::vector<UInt32> map)
+// ----------------------------------------------------------
+{
+    OFXAU_RET_BOOL(AudioUnitSetProperty(*_unit,
+                         kAudioOutputUnitProperty_ChannelMap,
+                         kAudioUnitScope_Output,
+                         0,
+                         map.data(),
+                         map.size()*sizeof(UInt32)),
+                   "setting output unit's channel map");
+}
+
+// ----------------------------------------------------------
+void ofxAudioUnitOutput::getChannelLayout()
+// ----------------------------------------------------------
+{
+    UInt32 dataSize;
+    Boolean writable;
+    AudioUnitGetPropertyInfo(*_unit,
+                        kAudioUnitProperty_AudioChannelLayout,
+                        kAudioUnitScope_Output,
+                        0,
+                        &dataSize,
+                        &writable);
+
+    /*AudioChannelLayout *acl = (AudioChannelLayout*)malloc(dataSize);
+    
+    AudioUnitGetProperty(*_unit, kAudioUnitProperty_AudioChannelLayout, kAudioUnitScope_Output, 0, acl, &dataSize);
+    
+    free(acl);*/
+}
+
+// ----------------------------------------------------------
 void ofxAudioUnitOutput::listOutputDevices()
 // ----------------------------------------------------------
 {
