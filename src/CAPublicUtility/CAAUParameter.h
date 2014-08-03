@@ -44,6 +44,9 @@
  Copyright (C) 2013 Apple Inc. All Rights Reserved. 
   
 */
+
+#if !TARGET_OS_IPHONE
+
 #ifndef __CAAUParameter_h__
 #define __CAAUParameter_h__
 
@@ -189,3 +192,5 @@ private:
 
 
 #endif // __CAAUParameter_h__
+
+#endif // !TARGET_OS_IPHONE

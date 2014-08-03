@@ -1,5 +1,8 @@
 #pragma once
 
+#include "TargetConditionals.h"
+#if !TARGET_OS_IPHONE
+
 #include <vector>
 #include <string>
 #import <AudioToolbox/AudioToolbox.h>
@@ -14,4 +17,9 @@ AudioDeviceID DefaultAudioOutputDevice();
 
 std::string AudioDeviceName(AudioDeviceID deviceID);
 std::string AudioDeviceManufacturer(AudioDeviceID deviceID);
+<<<<<<< HEAD
 std::string AudioDeviceUID(AudioDeviceID deviceID);
+=======
+
+#endif // !TARGET_OS_IPHONE
+>>>>>>> fork/master

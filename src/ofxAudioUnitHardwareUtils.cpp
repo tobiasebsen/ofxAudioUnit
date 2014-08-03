@@ -1,3 +1,6 @@
+#include "TargetConditionals.h"
+#if !TARGET_OS_IPHONE
+
 #include "ofxAudioUnitHardwareUtils.h"
 #include "ofxAudioUnitUtils.h"
 
@@ -154,6 +157,7 @@ std::string AudioDeviceManufacturer(AudioDeviceID deviceID)
 	return StringForPropertyOnDevice(deviceManuProp, deviceID);
 }
 
+<<<<<<< HEAD
 std::string AudioDeviceUID(AudioDeviceID deviceID)
 {
     AudioObjectPropertyAddress deviceManuProp = {
@@ -164,3 +168,6 @@ std::string AudioDeviceUID(AudioDeviceID deviceID)
 	
 	return StringForPropertyOnDevice(deviceManuProp, deviceID);
 }
+=======
+#endif
+>>>>>>> fork/master

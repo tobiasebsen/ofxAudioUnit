@@ -57,7 +57,7 @@ struct DSPNodeContext
 				circularBuffers.resize(bufferCount);
 				
 				for(int i = 0; i < circularBuffers.size(); i++) {
-					TPCircularBufferInit(&circularBuffers[i], samplesToBuffer * sizeof(AudioUnitSampleType));
+					TPCircularBufferInit(&circularBuffers[i], samplesToBuffer * sizeof(Float32));
 				}
 				_bufferSize = samplesToBuffer;
 			}
@@ -202,20 +202,20 @@ unsigned int ofxAudioUnitDSPNode::getBufferSize() const
 #pragma mark - Getting Samples
 
 // ----------------------------------------------------------
-void ExtractSamplesFromCircularBuffer(std::vector<AudioUnitSampleType> &outBuffer, TPCircularBuffer * circularBuffer)
+void ExtractSamplesFromCircularBuffer(std::vector<Float32> &outBuffer, TPCircularBuffer * circularBuffer)
 // ----------------------------------------------------------
 {
 	if(!circularBuffer) {
 		outBuffer.clear();
 	} else {
 		int32_t circBufferSize;
-		AudioUnitSampleType * circBufferTail = (AudioUnitSampleType *)TPCircularBufferTail(circularBuffer, &circBufferSize);
-		AudioUnitSampleType * circBufferHead = circBufferTail + (circBufferSize / sizeof(AudioUnitSampleType));
+		Float32 * circBufferTail = (Float32 *)TPCircularBufferTail(circularBuffer, &circBufferSize);
+		Float32 * circBufferHead = circBufferTail + (circBufferSize / sizeof(Float32));
 		outBuffer.assign(circBufferTail, circBufferHead);
 	}
 }
 
-void ofxAudioUnitDSPNode::getSamplesFromChannel(std::vector<AudioUnitSampleType> &samples, unsigned int channel) const
+void ofxAudioUnitDSPNode::getSamplesFromChannel(std::vector<Float32> &samples, unsigned int channel) const
 {
 	if(_impl->ctx.circularBuffers.size() > channel) {
 		ExtractSamplesFromCircularBuffer(samples, &_impl->ctx.circularBuffers[channel]);
@@ -283,7 +283,7 @@ OSStatus RenderAndCopy(void * inRefCon,
 	
 	if(ctx->bufferMutex.tryLock()) {
 		if(status == noErr) {
-			const size_t buffersToCopy = min(ctx->circularBuffers.size(), ioData->mNumberBuffers);
+			const size_t buffersToCopy = std::min<size_t>(ctx->circularBuffers.size(), ioData->mNumberBuffers);
 			
 			for(int i = 0; i < buffersToCopy; i++) {
 				CopyAudioBufferIntoCircularBuffer(&ctx->circularBuffers[i], ioData->mBuffers[i]);

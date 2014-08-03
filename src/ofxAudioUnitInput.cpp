@@ -29,7 +29,7 @@ OSStatus PullCallback(void *inRefCon,
 					  UInt32 inNumberFrames,
 					  AudioBufferList *ioData);
 
-typedef ofPtr<AudioBufferList> AudioBufferListRef;
+typedef std::shared_ptr<AudioBufferList> AudioBufferListRef;
 
 struct InputContext
 {
@@ -42,7 +42,11 @@ struct ofxAudioUnitInput::InputImpl
 {
 	InputContext ctx;
 	bool isReady;
+
+#if !TARGET_OS_IPHONE
 	AudioDeviceID inputDeviceID;
+#endif
+	
 };
 
 #pragma mark - ofxAudioUnitInput
@@ -69,10 +73,13 @@ ofxAudioUnitInput::ofxAudioUnitInput(unsigned int samplesToBuffer)
 	_impl->ctx.bufferList = AudioBufferListRef(AudioBufferListAlloc(ASBD.mChannelsPerFrame, 1024), AudioBufferListRelease);
 	_impl->ctx.circularBuffers.resize(ASBD.mChannelsPerFrame);
 	_impl->isReady = false;
+	
+#if !TARGET_OS_IPHONE
 	_impl->inputDeviceID = DefaultAudioInputDevice();
+#endif
 	
 	for(int i = 0; i < ASBD.mChannelsPerFrame; i++) {
-		TPCircularBufferInit(&_impl->ctx.circularBuffers[i], samplesToBuffer * sizeof(AudioUnitSampleType));
+		TPCircularBufferInit(&_impl->ctx.circularBuffers[i], samplesToBuffer * sizeof(Float32));
 	}
 }
 
@@ -143,9 +150,13 @@ bool ofxAudioUnitInput::stop()
 	if(_unit) {
 		OFXAU_RET_BOOL(AudioOutputUnitStop(*_unit), "stopping hardware input unit");
 	}
+	
+	return false;
 }
 
 #pragma mark - Hardware
+
+#if !TARGET_OS_IPHONE
 
 // ----------------------------------------------------------
 bool ofxAudioUnitInput::setDevice(AudioDeviceID deviceID)
@@ -195,6 +206,8 @@ void ofxAudioUnitInput::listInputDevices()
 		cout << "ID[" << deviceList[i] << "]  \t" << "Name[" << AudioDeviceName(deviceList[i]) << "]" << endl;
 	}
 }
+
+#pragma mark OSX
 
 // ----------------------------------------------------------
 bool ofxAudioUnitInput::configureInputDevice()
@@ -261,6 +274,20 @@ bool ofxAudioUnitInput::configureInputDevice()
 				   "initializing hardware input unit after setting it to input mode");
 }
 
+#else
+
+#pragma mark iOS
+
+// ----------------------------------------------------------
+bool ofxAudioUnitInput::configureInputDevice()
+// ----------------------------------------------------------
+{
+	std::cout << "ofxAudioUnitInput not implemented on iOS yet" << std::endl;
+	return false;
+}
+
+#endif
+
 #pragma mark - Callbacks / Rendering
 
 // ----------------------------------------------------------
@@ -295,14 +322,14 @@ OSStatus RenderCallback(void *inRefCon,
 	OFXAU_PRINT(s, "rendering audio input");
 	
 	if(s == noErr) {
-		size_t buffersToCopy = min(ctx->bufferList->mNumberBuffers, ctx->circularBuffers.size());
+		size_t buffersToCopy = std::min<size_t>(ctx->bufferList->mNumberBuffers, ctx->circularBuffers.size());
 		
 		for(int i = 0; i < buffersToCopy; i++) {
 			TPCircularBuffer * circBuffer = &ctx->circularBuffers[i];
 			if(circBuffer) {
 				TPCircularBufferProduceBytes(circBuffer,
 											 ctx->bufferList->mBuffers[i].mData,
-											 inNumberFrames * sizeof(AudioUnitSampleType));
+											 inNumberFrames * sizeof(Float32));
 			}
 		}
 	}
@@ -321,12 +348,12 @@ OSStatus PullCallback(void *inRefCon,
 {
 	InputContext * ctx = static_cast<InputContext *>(inRefCon);
 	
-	size_t buffersToCopy = min(ioData->mNumberBuffers, ctx->circularBuffers.size());
+	size_t buffersToCopy = std::min<size_t>(ioData->mNumberBuffers, ctx->circularBuffers.size());
 	
 	for(int i = 0; i < buffersToCopy; i++) {
 		int32_t circBufferSize;
-		AudioUnitSampleType * circBufferTail = (AudioUnitSampleType *) TPCircularBufferTail(&ctx->circularBuffers[i], &circBufferSize);
-		bool circBufferHasEnoughSamples = circBufferSize / sizeof(AudioUnitSampleType) >= inNumberFrames ? true : false;
+		Float32 * circBufferTail = (Float32 *) TPCircularBufferTail(&ctx->circularBuffers[i], &circBufferSize);
+		bool circBufferHasEnoughSamples = circBufferSize / sizeof(Float32) >= inNumberFrames ? true : false;
 		
 		if(!circBufferHasEnoughSamples) {
 			// clear buffer, so bytes that don't get written are silence instead of noise

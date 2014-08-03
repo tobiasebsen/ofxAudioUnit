@@ -22,13 +22,15 @@ public:
 	bool start();
 	bool stop();
 	
+#if !TARGET_OS_IPHONE
 	bool setDevice(AudioDeviceID deviceID);
 	bool setDevice(const string &deviceName);
 	
 	static void listInputDevices();
+#endif
 	
 private:
 	struct InputImpl;
-	ofPtr<InputImpl> _impl;
+	shared_ptr<InputImpl> _impl;
 	bool configureInputDevice();
 };
