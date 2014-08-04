@@ -157,7 +157,6 @@ std::string AudioDeviceManufacturer(AudioDeviceID deviceID)
 	return StringForPropertyOnDevice(deviceManuProp, deviceID);
 }
 
-<<<<<<< HEAD
 std::string AudioDeviceUID(AudioDeviceID deviceID)
 {
     AudioObjectPropertyAddress deviceManuProp = {
@@ -168,6 +167,5 @@ std::string AudioDeviceUID(AudioDeviceID deviceID)
 	
 	return StringForPropertyOnDevice(deviceManuProp, deviceID);
 }
-=======
+
 #endif
->>>>>>> fork/master

@@ -22,8 +22,8 @@ public:
 	bool setDevice(const string &deviceName);
     AudioDeviceID getDevice();
     
-    std::vector<UInt32> getChannelMap();
-    bool setChannelMap(std::vector<UInt32> map);
+    std::vector<SInt32> getChannelMap();
+    bool setChannelMap(std::vector<SInt32> map);
     
     void getChannelLayout();
 

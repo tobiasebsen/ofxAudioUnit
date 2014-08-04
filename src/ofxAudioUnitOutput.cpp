@@ -94,7 +94,7 @@ AudioDeviceID ofxAudioUnitOutput::getDevice()
 }
 
 // ----------------------------------------------------------
-std::vector<UInt32> ofxAudioUnitOutput::getChannelMap()
+std::vector<SInt32> ofxAudioUnitOutput::getChannelMap()
 // ----------------------------------------------------------
 {
     UInt32 dataSize;
@@ -108,7 +108,7 @@ std::vector<UInt32> ofxAudioUnitOutput::getChannelMap()
                 "getting output unit's channel map");
     
     UInt32 numChannels = dataSize / sizeof(UInt32);
-    std::vector<UInt32> channelMap(numChannels);
+    std::vector<SInt32> channelMap(numChannels);
     
     AudioUnitGetProperty(*_unit,
                          kAudioOutputUnitProperty_ChannelMap,
@@ -121,7 +121,7 @@ std::vector<UInt32> ofxAudioUnitOutput::getChannelMap()
 }
 
 // ----------------------------------------------------------
-bool ofxAudioUnitOutput::setChannelMap(std::vector<UInt32> map)
+bool ofxAudioUnitOutput::setChannelMap(std::vector<SInt32> map)
 // ----------------------------------------------------------
 {
     OFXAU_RET_BOOL(AudioUnitSetProperty(*_unit,

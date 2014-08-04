@@ -17,9 +17,6 @@ AudioDeviceID DefaultAudioOutputDevice();
 
 std::string AudioDeviceName(AudioDeviceID deviceID);
 std::string AudioDeviceManufacturer(AudioDeviceID deviceID);
-<<<<<<< HEAD
 std::string AudioDeviceUID(AudioDeviceID deviceID);
-=======
 
 #endif // !TARGET_OS_IPHONE
->>>>>>> fork/master
